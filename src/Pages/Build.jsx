@@ -64,6 +64,8 @@ const Build = () => {
                   ? field.id
                   : `field-${field.id}`,
                 settings: field.settings || defaultSettings,
+                options: field.options || undefined,
+                question: field.question || undefined,
               })) || [];
 
             setFields(normalizedFields);

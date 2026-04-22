@@ -163,6 +163,11 @@ const Dashboard = () => {
                     >
                       <FiBarChart2 size={14} />
                       Responses
+                      {form.response_count > 0 && (
+                        <span className="ml-1 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold text-white bg-purple-600 rounded-full">
+                          {form.response_count}
+                        </span>
+                      )}
                     </Link>
 
                     <button
