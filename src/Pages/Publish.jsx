@@ -89,7 +89,7 @@ const Publish = () => {
 
       setFormLink(
         result?.formLink ||
-          `https://jotform.gr8.com.np/form/${finalFormNumber}`,
+          `https://form-maker-nine-eta.vercel.app/form/${finalFormNumber}`,
       );
 
       localStorage.setItem("formNumber", finalFormNumber);
