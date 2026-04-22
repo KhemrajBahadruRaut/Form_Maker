@@ -35,9 +35,9 @@ const Settings = () => {
 
     // If no fields in localStorage and we have a formNumber, fetch from backend
     if (savedFields.length === 0 && formNumber) {
-      // fetch(`http://localhost/GR8_jotform/Backend/form_view/get_form_by_number.php?formNumber=${formNumber}`)
       fetch(
         `https://jotform.gr8.com.np/GR8_JOTFORM/Backend/form_view/get_form_by_number.php?formNumber=${formNumber}`,
+        { credentials: 'include' }
       )
         .then((res) => res.json())
         .then((result) => {

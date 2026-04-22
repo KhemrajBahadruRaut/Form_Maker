@@ -49,8 +49,8 @@ const Build = () => {
         // First time opening this form — fetch from DB
         try {
           const response = await fetch(
-            // `http://localhost/GR8_jotform/Backend/form_view/get_form_by_number.php?formNumber=${formNumber}`
             `https://jotform.gr8.com.np/GR8_JOTFORM/Backend/form_view/get_form_by_number.php?formNumber=${formNumber}`,
+            { credentials: 'include' }
           );
           const result = await response.json();
 

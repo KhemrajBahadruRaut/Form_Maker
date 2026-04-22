@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FiEdit2, FiTrash2, FiPlus, FiEye, FiBarChart2, FiCalendar, FiFileText, FiMessageSquare } from 'react-icons/fi';
+import { FiEdit2, FiTrash2, FiPlus, FiEye, FiBarChart2, FiCalendar, FiFileText, FiMessageSquare, FiLogOut } from 'react-icons/fi';
 import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 
 const Dashboard = () => {
   const [forms, setForms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   useEffect(() => {
     fetchForms();
@@ -15,7 +17,7 @@ const Dashboard = () => {
 
   const fetchForms = async () => {
     try {
-      const response = await axios.get('https://jotform.gr8.com.np/GR8_JOTFORM/Backend/get_form.php');
+      const response = await axios.get('https://jotform.gr8.com.np/GR8_JOTFORM/Backend/get_form.php', { withCredentials: true });
       if (response.data.success) {
         setForms(response.data.data);
       } else {
@@ -32,7 +34,7 @@ const Dashboard = () => {
     if (!window.confirm('Are you sure you want to delete this form?')) return;
     
     try {
-      const response = await axios.delete(`https://jotform.gr8.com.np/GR8_JOTFORM/Backend/delete_form.php?id=${formId}`);
+      const response = await axios.delete(`https://jotform.gr8.com.np/GR8_JOTFORM/Backend/delete_form.php?id=${formId}`, { withCredentials: true });
       if (response.data.success) {
         setForms(forms.filter(form => form.id !== formId));
       } else {
@@ -82,13 +84,23 @@ const Dashboard = () => {
               <h1 className="text-3xl font-bold text-white">My Forms</h1>
               <p className="text-gray-400 text-sm mt-1">{forms.length} form{forms.length !== 1 ? 's' : ''} created</p>
             </div>
-            <button
-              onClick={handleCreateNewForm}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl transition-all duration-200 font-medium shadow-lg shadow-blue-600/25 hover:shadow-blue-600/40 hover:-translate-y-0.5"
-            >
-              <FiPlus size={18} />
-              <span>Create New Form</span>
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleCreateNewForm}
+                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl transition-all duration-200 font-medium shadow-lg shadow-blue-600/25 hover:shadow-blue-600/40 hover:-translate-y-0.5"
+              >
+                <FiPlus size={18} />
+                <span>Create New Form</span>
+              </button>
+              <button
+                onClick={async () => { await logout(); navigate('/login', { replace: true }); }}
+                className="flex items-center gap-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 px-4 py-2.5 rounded-xl transition-all duration-200 font-medium border border-red-500/20"
+                title="Logout"
+              >
+                <FiLogOut size={18} />
+                <span>Logout</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>

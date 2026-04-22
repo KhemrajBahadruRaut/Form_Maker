@@ -1,14 +1,11 @@
-import { useState } from 'react'
 import MyRoutes from './MyRoutes/MyRoutes'
-
+import { AuthProvider } from './context/AuthContext'
 
 function App() {
-  
   return (
-    <>
-    <MyRoutes />
-      
-    </>
+    <AuthProvider>
+      <MyRoutes />
+    </AuthProvider>
   )
 }
 

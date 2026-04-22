@@ -10,8 +10,8 @@ const ImageField = ({ field, onUpdateField }) => {
       formData.append('image', file);
 
       const response = await fetch('https://jotform.gr8.com.np/GR8_JOTFORM/Backend/upload_image.php', {
-      // const response = await fetch('http://localhost/GR8_JOTFORM/Backend/upload_image.php', {
         method: 'POST',
+        credentials: 'include',
         body: formData
       });
 
