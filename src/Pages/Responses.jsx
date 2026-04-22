@@ -18,7 +18,8 @@ const Responses = () => {
       setError(null);
       try {
         const res = await fetch(
-          `http://localhost/GR8_JOTFORM/Backend/get_responses.php?formNumber=${formNumber}`
+          // `http://localhost/GR8_JOTFORM/Backend/get_responses.php?formNumber=${formNumber}`
+          `https://jotform.gr8.com.np/GR8_JOTFORM/Backend/get_responses.php?formNumber=${formNumber}`
         );
         const data = await res.json();
         if (!data.success) throw new Error(data.error || 'Failed to fetch responses');

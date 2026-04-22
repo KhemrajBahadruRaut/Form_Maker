@@ -49,7 +49,7 @@ const Publish = () => {
         createdAt: new Date().toISOString()
       };
 
-      const response = await fetch('http://localhost/GR8_JOTFORM/Backend/save_form.php', {
+      const response = await fetch('https://jotform.gr8.com.np/GR8_JOTFORM/Backend/save_form.php', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -70,7 +70,7 @@ const Publish = () => {
         throw new Error(result?.details || result?.message || 'Failed to save form');
       }
 
-      setFormLink(result.formLink || `http://localhost:5173/form/${formNumber}`);
+      setFormLink(result.formLink || `https://jotform.gr8.com.np/form/${formNumber}`);
       
     } catch (err) {
       setError(err.message);

@@ -28,7 +28,8 @@ const FormViewer = () => {
       setError(null);
       try {
         const res = await fetch(
-          `http://localhost/GR8_jotform/Backend/form_view/get_form_by_number.php?formNumber=${formNumber}`
+          // `http://localhost/GR8_jotform/Backend/form_view/get_form_by_number.php?formNumber=${formNumber}`
+          `https://jotform.gr8.com.np/GR8_JOTFORM/Backend/form_view/get_form_by_number.php?formNumber=${formNumber}`
         );
         const data = await res.json();
         if (!data.success) throw new Error(data.error || 'Failed to fetch form');
@@ -71,7 +72,8 @@ const FormViewer = () => {
           value: answers[f.id] || ''
         }));
 
-      const res = await fetch('http://localhost/GR8_JOTFORM/Backend/submit_response.php', {
+      // const res = await fetch('http://localhost/GR8_JOTFORM/Backend/submit_response.php', {
+      const res = await fetch('https://jotform.gr8.com.np/GR8_JOTFORM/Backend/submit_response.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ formNumber, responses })
