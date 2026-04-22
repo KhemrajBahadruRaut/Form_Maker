@@ -21,6 +21,8 @@ const FormViewer = () => {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState(null);
+  const [validationErrors, setValidationErrors] = useState({});
+  const [shakeSubmit, setShakeSubmit] = useState(false);
 
   useEffect(() => {
     const fetchForm = async () => {
@@ -59,12 +61,42 @@ const FormViewer = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitting(true);
     setSubmitError(null);
 
+    // --- Validation ---
+    const fillableFields = (form.fields || []).filter(f =>
+      ['Short', 'Long', 'MCQ', 'MultipleAnswers', 'ImageChoice'].includes(f.type)
+    );
+    const errors = {};
+    fillableFields.forEach(f => {
+      const val = answers[f.id];
+      if (
+        val === undefined ||
+        val === null ||
+        val === '' ||
+        (Array.isArray(val) && val.length === 0)
+      ) {
+        errors[f.id] = 'This field is required';
+      }
+    });
+
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      setShakeSubmit(true);
+      setTimeout(() => setShakeSubmit(false), 600);
+      // Scroll to first error
+      const firstErrorId = Object.keys(errors)[0];
+      const el = document.getElementById(`field-wrapper-${firstErrorId}`);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    setValidationErrors({});
+    // --- End Validation ---
+
+    setSubmitting(true);
+
     try {
-      const responses = form.fields
-        .filter(f => ['Short', 'Long', 'MCQ', 'MultipleAnswers', 'ImageChoice'].includes(f.type))
+      const responses = fillableFields
         .map(f => ({
           fieldId: f.id,
           fieldType: f.type,
@@ -199,43 +231,48 @@ const FormViewer = () => {
       
       case 'Short':
         return (
-          <div key={field.id || index} className="space-y-2">
+          <div key={field.id || index} id={`field-wrapper-${field.id}`} className="space-y-2">
             <label className="block text-gray-700 font-medium text-sm">
               {field.value || settings.label || 'Text Input'}
+              <span className="text-red-500 ml-1">*</span>
             </label>
             <input
               type="text"
-              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-800"
+              className={`w-full px-4 py-3 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-800 ${validationErrors[field.id] ? 'border-red-400 bg-red-50/30' : 'border-gray-200'}`}
               placeholder={settings.placeholder || 'Type your answer...'}
               value={answers[field.id] || ''}
-              onChange={(e) => updateAnswer(field.id, e.target.value)}
+              onChange={(e) => { updateAnswer(field.id, e.target.value); setValidationErrors(prev => { const n = {...prev}; delete n[field.id]; return n; }); }}
             />
+            {validationErrors[field.id] && <p className="text-red-500 text-xs font-medium mt-1">{validationErrors[field.id]}</p>}
           </div>
         );
 
       case 'Long':
         return (
-          <div key={field.id || index} className="space-y-2">
+          <div key={field.id || index} id={`field-wrapper-${field.id}`} className="space-y-2">
             <label className="block text-gray-700 font-medium text-sm">
               {field.value || settings.label || 'Text Input'}
+              <span className="text-red-500 ml-1">*</span>
             </label>
             <textarea
-              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-800 resize-y min-h-[100px]"
+              className={`w-full px-4 py-3 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-800 resize-y min-h-[100px] ${validationErrors[field.id] ? 'border-red-400 bg-red-50/30' : 'border-gray-200'}`}
               placeholder={settings.placeholder || 'Type your answer...'}
               rows="4"
               value={answers[field.id] || ''}
-              onChange={(e) => updateAnswer(field.id, e.target.value)}
+              onChange={(e) => { updateAnswer(field.id, e.target.value); setValidationErrors(prev => { const n = {...prev}; delete n[field.id]; return n; }); }}
             />
+            {validationErrors[field.id] && <p className="text-red-500 text-xs font-medium mt-1">{validationErrors[field.id]}</p>}
           </div>
         );
       
       case 'MCQ':
         return (
-          <div key={field.id || index} className="space-y-3">
+          <div key={field.id || index} id={`field-wrapper-${field.id}`} className="space-y-3">
             <label className="block text-gray-700 font-medium text-sm">
               {field.value || settings.label || 'Multiple Choice'}
+              <span className="text-red-500 ml-1">*</span>
             </label>
-            <div className="space-y-2">
+            <div className={`space-y-2 ${validationErrors[field.id] ? 'ring-2 ring-red-300 rounded-xl p-1' : ''}`}>
               {(field.options || []).map((option, i) => (
                 <label 
                   key={i} 
@@ -250,23 +287,25 @@ const FormViewer = () => {
                     name={`q-${field.id}`}
                     value={option.value}
                     checked={answers[field.id] === option.value}
-                    onChange={(e) => updateAnswer(field.id, e.target.value)}
+                    onChange={(e) => { updateAnswer(field.id, e.target.value); setValidationErrors(prev => { const n = {...prev}; delete n[field.id]; return n; }); }}
                     className="w-4 h-4 text-blue-600 mr-3"
                   />
                   <span className="text-gray-700">{option.value}</span>
                 </label>
               ))}
             </div>
+            {validationErrors[field.id] && <p className="text-red-500 text-xs font-medium mt-1">{validationErrors[field.id]}</p>}
           </div>
         );
 
       case 'MultipleAnswers':
         return (
-          <div key={field.id || index} className="space-y-3">
+          <div key={field.id || index} id={`field-wrapper-${field.id}`} className="space-y-3">
             <label className="block text-gray-700 font-medium text-sm">
               {field.value || settings.label || 'Multiple Answers'}
+              <span className="text-red-500 ml-1">*</span>
             </label>
-            <div className="space-y-2">
+            <div className={`space-y-2 ${validationErrors[field.id] ? 'ring-2 ring-red-300 rounded-xl p-1' : ''}`}>
               {(field.options || []).map((option, i) => {
                 const selected = (answers[field.id] || []);
                 const isChecked = selected.includes(option.value);
@@ -288,6 +327,7 @@ const FormViewer = () => {
                           ? current.filter(v => v !== option.value)
                           : [...current, option.value];
                         updateAnswer(field.id, updated);
+                        setValidationErrors(prev => { const n = {...prev}; delete n[field.id]; return n; });
                       }}
                       className="w-4 h-4 text-blue-600 mr-3 rounded"
                     />
@@ -296,22 +336,24 @@ const FormViewer = () => {
                 );
               })}
             </div>
+            {validationErrors[field.id] && <p className="text-red-500 text-xs font-medium mt-1">{validationErrors[field.id]}</p>}
           </div>
         );
       
       case 'ImageChoice':
         return (
-          <div key={field.id || index} className="space-y-3">
+          <div key={field.id || index} id={`field-wrapper-${field.id}`} className="space-y-3">
             <label className="block text-gray-700 font-medium text-sm">
               {field.question || settings.label || 'Image Choice'}
+              <span className="text-red-500 ml-1">*</span>
             </label>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className={`grid grid-cols-2 md:grid-cols-3 gap-4 ${validationErrors[field.id] ? 'ring-2 ring-red-300 rounded-xl p-1' : ''}`}>
               {(field.options || []).map((option, i) => {
                 const isSelected = answers[field.id] === option.label;
                 return (
                   <div
                     key={i}
-                    onClick={() => updateAnswer(field.id, option.label)}
+                    onClick={() => { updateAnswer(field.id, option.label); setValidationErrors(prev => { const n = {...prev}; delete n[field.id]; return n; }); }}
                     className={`cursor-pointer rounded-xl border-2 overflow-hidden transition-all duration-200 ${
                       isSelected 
                         ? 'border-blue-500 shadow-lg scale-[1.02]' 
@@ -332,6 +374,7 @@ const FormViewer = () => {
                 );
               })}
             </div>
+            {validationErrors[field.id] && <p className="text-red-500 text-xs font-medium mt-1">{validationErrors[field.id]}</p>}
           </div>
         );
       
@@ -381,16 +424,24 @@ const FormViewer = () => {
           </div>
         )}
 
+        {/* Validation Summary */}
+        {Object.keys(validationErrors).length > 0 && (
+          <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-center">
+            <p className="font-medium">⚠️ Please fill in all required fields before submitting.</p>
+          </div>
+        )}
+
         {/* Submit Button */}
         {fields.length > 0 && (
           <div className={`mt-6 ${resolveAlignment(submitSettings.align)}`}>
             <button
               type="submit"
               disabled={submitting}
-              className={`inline-flex items-center px-8 py-3.5 rounded-xl font-semibold ${submitSettings.fontSize} shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0`}
+              className={`inline-flex items-center px-8 py-3.5 rounded-xl font-semibold ${submitSettings.fontSize} shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0 ${shakeSubmit ? 'animate-[shake_0.5s_ease-in-out]' : ''}`}
               style={{
                 backgroundColor: submitSettings.bgColor,
                 color: submitSettings.textColor,
+                animation: shakeSubmit ? 'shake 0.5s ease-in-out' : undefined,
               }}
             >
               {submitting ? (
@@ -405,6 +456,15 @@ const FormViewer = () => {
             </button>
           </div>
         )}
+
+        {/* Shake Animation Keyframes */}
+        <style>{`
+          @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+            20%, 40%, 60%, 80% { transform: translateX(4px); }
+          }
+        `}</style>
       </form>
     </div>
   );

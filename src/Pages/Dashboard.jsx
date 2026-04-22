@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FiEdit2, FiTrash2, FiPlus, FiEye, FiBarChart2, FiCalendar, FiFileText } from 'react-icons/fi';
+import { FiEdit2, FiTrash2, FiPlus, FiEye, FiBarChart2, FiCalendar, FiFileText, FiMessageSquare } from 'react-icons/fi';
 import axios from 'axios';
 
 const Dashboard = () => {
@@ -132,6 +132,14 @@ const Dashboard = () => {
                     <span>{new Date(form.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                   </div>
 
+                  {/* Total Responses */}
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 text-blue-700 rounded-lg text-xs font-semibold">
+                      <FiMessageSquare size={12} />
+                      <span>{form.response_count || 0} response{form.response_count !== 1 ? 's' : ''}</span>
+                    </div>
+                  </div>
+
                   {/* Description */}
                   {form.description && (
                     <p className="text-gray-500 text-sm mb-4 line-clamp-2">
@@ -163,11 +171,15 @@ const Dashboard = () => {
                     >
                       <FiBarChart2 size={14} />
                       Responses
-                      {form.response_count > 0 && (
-                        <span className="ml-1 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold text-white bg-purple-600 rounded-full">
-                          {form.response_count}
-                        </span>
-                      )}
+                      {(() => {
+                        const seen = parseInt(localStorage.getItem(`seen_responses_${form.form_number}`) || '0', 10);
+                        const newCount = (form.response_count || 0) - seen;
+                        return newCount > 0 ? (
+                          <span className="ml-1 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold text-white bg-red-500 rounded-full animate-pulse">
+                            {newCount}
+                          </span>
+                        ) : null;
+                      })()}
                     </Link>
 
                     <button

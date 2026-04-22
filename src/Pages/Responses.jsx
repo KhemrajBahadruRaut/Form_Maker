@@ -26,6 +26,8 @@ const Responses = () => {
         setResponses(data.responses || []);
         setFormTitle(data.form?.title || 'Untitled Form');
         setTotalResponses(data.totalResponses || 0);
+        // Mark responses as "seen" so Dashboard badge updates
+        localStorage.setItem(`seen_responses_${formNumber}`, String(data.totalResponses || 0));
       } catch (err) {
         setError(err.message);
       } finally {
