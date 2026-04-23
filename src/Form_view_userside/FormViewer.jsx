@@ -30,7 +30,7 @@ const FormViewer = () => {
       setError(null);
       try {
         const res = await fetch(
-          // `http://localhost/GR8_jotform/Backend/form_view/get_form_by_number.php?formNumber=${formNumber}`
+          // `http://localhost/GR8_JOTFORM/Backend/form_view/get_form_by_number.php?formNumber=${formNumber}`
           `https://jotform.gr8.com.np/GR8_JOTFORM/Backend/form_view/get_form_by_number.php?formNumber=${formNumber}`
         );
         const data = await res.json();
@@ -349,25 +349,38 @@ const FormViewer = () => {
             </label>
             <div className={`grid grid-cols-2 md:grid-cols-3 gap-4 ${validationErrors[field.id] ? 'ring-2 ring-red-300 rounded-xl p-1' : ''}`}>
               {(field.options || []).map((option, i) => {
-                const isSelected = answers[field.id] === option.label;
+                const optionValue = option.label || `option-${i}`;
+                const isSelected = answers[field.id] === optionValue;
                 return (
                   <div
                     key={i}
-                    onClick={() => { updateAnswer(field.id, option.label); setValidationErrors(prev => { const n = {...prev}; delete n[field.id]; return n; }); }}
-                    className={`cursor-pointer rounded-xl border-2 overflow-hidden transition-all duration-200 ${
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      updateAnswer(field.id, optionValue);
+                      setValidationErrors(prev => { const n = {...prev}; delete n[field.id]; return n; });
+                    }}
+                    className={`cursor-pointer rounded-xl border-2 overflow-hidden transition-all duration-200 relative ${
                       isSelected 
                         ? 'border-blue-500 shadow-lg scale-[1.02]' 
                         : 'border-gray-200 hover:border-gray-300 hover:shadow-md'
                     }`}
                   >
+                    {/* Selected checkmark */}
+                    {isSelected && (
+                      <div className="absolute top-2 right-2 z-10 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center shadow-md">
+                        <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                    )}
                     {option.imageUrl && (
                       <img 
                         src={option.imageUrl} 
                         alt={option.label || ''} 
-                        className="w-full h-32 object-cover"
+                        className="w-full h-32 object-cover pointer-events-none"
                       />
                     )}
-                    <div className="p-3 text-center text-sm font-medium text-gray-700 bg-white">
+                    <div className="p-3 text-center text-sm font-medium text-gray-700 bg-white pointer-events-none">
                       {option.label}
                     </div>
                   </div>

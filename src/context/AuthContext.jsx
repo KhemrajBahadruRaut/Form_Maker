@@ -3,37 +3,27 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 const AuthContext = createContext(null);
 
 const API_BASE = 'https://jotform.gr8.com.np/GR8_JOTFORM/Backend';
+// const API_BASE = 'http://localhost/GR8_JOTFORM/Backend';
 
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Check session on mount
+  // Check localStorage on mount (no backend session check needed)
   useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const res = await fetch(`${API_BASE}/check_session.php`, {
-          credentials: 'include',
-        });
-        const data = await res.json();
-        if (data.loggedIn) {
-          setIsLoggedIn(true);
-          setUsername(data.username);
-        }
-      } catch (err) {
-        console.error('Session check failed:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    checkSession();
+    const storedLoggedIn = localStorage.getItem('adminLoggedIn');
+    const storedUsername = localStorage.getItem('adminUsername');
+    if (storedLoggedIn === 'true' && storedUsername) {
+      setIsLoggedIn(true);
+      setUsername(storedUsername);
+    }
+    setLoading(false);
   }, []);
 
   const login = async (usernameInput, password) => {
     const res = await fetch(`${API_BASE}/login.php`, {
       method: 'POST',
-      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username: usernameInput, password }),
     });
@@ -41,23 +31,19 @@ export const AuthProvider = ({ children }) => {
     if (data.success) {
       setIsLoggedIn(true);
       setUsername(data.username);
+      localStorage.setItem('adminLoggedIn', 'true');
+      localStorage.setItem('adminUsername', data.username);
       return { success: true };
     } else {
       return { success: false, error: data.error };
     }
   };
 
-  const logout = async () => {
-    try {
-      await fetch(`${API_BASE}/logout.php`, {
-        method: 'POST',
-        credentials: 'include',
-      });
-    } catch (err) {
-      console.error('Logout failed:', err);
-    }
+  const logout = () => {
     setIsLoggedIn(false);
     setUsername(null);
+    localStorage.removeItem('adminLoggedIn');
+    localStorage.removeItem('adminUsername');
   };
 
   return (

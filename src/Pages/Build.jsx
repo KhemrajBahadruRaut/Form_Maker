@@ -50,7 +50,7 @@ const Build = () => {
         try {
           const response = await fetch(
             `https://jotform.gr8.com.np/GR8_JOTFORM/Backend/form_view/get_form_by_number.php?formNumber=${formNumber}`,
-            { credentials: 'include' }
+            // `http://localhost/GR8_JOTFORM/Backend/form_view/get_form_by_number.php?formNumber=${formNumber}`
           );
           const result = await response.json();
 

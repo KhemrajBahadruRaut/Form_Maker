@@ -55,9 +55,9 @@ const Publish = () => {
 
       const response = await fetch(
         "https://jotform.gr8.com.np/GR8_JOTFORM/Backend/save_form.php",
+        // "http://localhost/GR8_JOTFORM/Backend/save_form.php",
         {
           method: "POST",
-          credentials: "include",
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
@@ -91,6 +91,7 @@ const Publish = () => {
       setFormLink(
         result?.formLink ||
           `https://form-maker-nine-eta.vercel.app/form/${finalFormNumber}`,
+          // `http://localhost:5173/form/${finalFormNumber}`,
       );
 
       localStorage.setItem("formNumber", finalFormNumber);

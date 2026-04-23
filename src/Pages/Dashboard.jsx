@@ -17,7 +17,8 @@ const Dashboard = () => {
 
   const fetchForms = async () => {
     try {
-      const response = await axios.get('https://jotform.gr8.com.np/GR8_JOTFORM/Backend/get_form.php', { withCredentials: true });
+      const response = await axios.get('https://jotform.gr8.com.np/GR8_JOTFORM/Backend/get_form.php');
+      // const response = await axios.get('http://localhost/GR8_JOTFORM/Backend/get_form.php');
       if (response.data.success) {
         setForms(response.data.data);
       } else {
@@ -34,7 +35,8 @@ const Dashboard = () => {
     if (!window.confirm('Are you sure you want to delete this form?')) return;
     
     try {
-      const response = await axios.delete(`https://jotform.gr8.com.np/GR8_JOTFORM/Backend/delete_form.php?id=${formId}`, { withCredentials: true });
+      const response = await axios.delete(`https://jotform.gr8.com.np/GR8_JOTFORM/Backend/delete_form.php?id=${formId}`);
+      // const response = await axios.delete(`http://localhost/GR8_JOTFORM/Backend/delete_form.php?id=${formId}`);
       if (response.data.success) {
         setForms(forms.filter(form => form.id !== formId));
       } else {

@@ -37,7 +37,7 @@ const Settings = () => {
     if (savedFields.length === 0 && formNumber) {
       fetch(
         `https://jotform.gr8.com.np/GR8_JOTFORM/Backend/form_view/get_form_by_number.php?formNumber=${formNumber}`,
-        { credentials: 'include' }
+        // `http://localhost/GR8_JOTFORM/Backend/form_view/get_form_by_number.php?formNumber=${formNumber}`
       )
         .then((res) => res.json())
         .then((result) => {
