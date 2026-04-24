@@ -1,23 +1,23 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import { useNavigate } from "react-router-dom";
 import {
   DndContext,
   closestCenter,
   PointerSensor,
   useSensor,
   useSensors,
-} from '@dnd-kit/core';
+} from "@dnd-kit/core";
 import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   useSortable,
   verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
-import FieldWrapper from './FieldWrapper';
-import FieldRenderer from './FieldRenderer';
+import FieldWrapper from "./FieldWrapper";
+import FieldRenderer from "./FieldRenderer";
 
 const SortableField = ({ field, onRemoveField, children }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
@@ -43,12 +43,12 @@ const FormBuilder = ({
   onUpdateField,
   onAddOption,
   onRemoveOption,
-  setFields, 
+  setFields,
 }) => {
   const navigator = useNavigate();
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
   );
 
   const handleDragEnd = (event) => {
@@ -62,8 +62,10 @@ const FormBuilder = ({
 
   return (
     <div className="bg-white p-4 rounded-lg col-span-1 max-h-[600px] overflow-y-auto">
-       {fields.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">No fields added yet</div>
+      {fields.length === 0 ? (
+        <div className="text-center py-8 text-gray-500">
+          No fields added yet
+        </div>
       ) : (
         <div className="">
           {/* <button
@@ -75,7 +77,6 @@ const FormBuilder = ({
           >
             Finished
           </button> */}
-
         </div>
       )}
 
@@ -88,21 +89,22 @@ const FormBuilder = ({
           items={fields.map((field) => field.id)}
           strategy={verticalListSortingStrategy}
         >
-         {fields.map((field, idx) => (
-<SortableField key={field.id} field={field} onRemoveField={onRemoveField}>
-
-    <FieldRenderer
-      field={field}
-      onUpdateField={onUpdateField}
-      onRemoveOption={onRemoveOption}
-      onAddOption={onAddOption}
-    />
-  </SortableField>
-))}
+          {fields.map((field, idx) => (
+            <SortableField
+              key={field.id}
+              field={field}
+              onRemoveField={onRemoveField}
+            >
+              <FieldRenderer
+                field={field}
+                onUpdateField={onUpdateField}
+                onRemoveOption={onRemoveOption}
+                onAddOption={onAddOption}
+              />
+            </SortableField>
+          ))}
         </SortableContext>
       </DndContext>
-
-     
     </div>
   );
 };
