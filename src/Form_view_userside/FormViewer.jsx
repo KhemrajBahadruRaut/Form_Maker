@@ -75,20 +75,30 @@ const FormViewer = () => {
     setSubmitError(null);
 
     const fillableFields = (form.fields || []).filter((f) =>
-      ["Short", "Long", "MCQ", "MultipleAnswers", "ImageChoice"].includes(
+      ["Short", "Long", "MCQ", "MultipleAnswers", "ImageChoice", "Email"].includes(
         f.type,
       ),
     );
     const errors = {};
     fillableFields.forEach((f) => {
+      // Email is always required; other fields respect the required setting
+      const isRequired = f.type === "Email" || f.settings?.required !== false;
       const val = answers[f.id];
       if (
-        val === undefined ||
+        isRequired &&
+        (val === undefined ||
         val === null ||
         val === "" ||
-        (Array.isArray(val) && val.length === 0)
+        (Array.isArray(val) && val.length === 0))
       ) {
         errors[f.id] = "This field is required";
+      }
+      // Email format validation
+      if (f.type === "Email" && val && val !== "") {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(val)) {
+          errors[f.id] = "Please enter a valid email address";
+        }
       }
     });
 
@@ -113,13 +123,17 @@ const FormViewer = () => {
         value: answers[f.id] || "",
       }));
 
+      // Extract respondent email from the Email field
+      const emailField = fillableFields.find((f) => f.type === "Email");
+      const respondentEmail = emailField ? (answers[emailField.id] || "") : "";
+
       const res = await fetch(
         // "http://localhost/GR8_JOTFORM/Backend/submit_response.php",
         "https://jotform.gr8.com.np/GR8_JOTFORM/Backend/submit_response.php",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ formNumber, responses }),
+          body: JSON.stringify({ formNumber, responses, respondentEmail }),
         },
       );
 
@@ -159,7 +173,7 @@ const FormViewer = () => {
     const field = fields.find((f) => f.id === key);
     return (
       field &&
-      ["Short", "Long", "MCQ", "MultipleAnswers", "ImageChoice"].includes(
+      ["Short", "Long", "MCQ", "MultipleAnswers", "ImageChoice", "Email"].includes(
         field.type,
       ) &&
       answers[key] &&
@@ -167,7 +181,7 @@ const FormViewer = () => {
     );
   }).length;
   const totalRequired = fields.filter((f) =>
-    ["Short", "Long", "MCQ", "MultipleAnswers", "ImageChoice"].includes(f.type),
+    ["Short", "Long", "MCQ", "MultipleAnswers", "ImageChoice", "Email"].includes(f.type),
   ).length;
   const progressPercent =
     totalRequired > 0 ? (progress / totalRequired) * 100 : 0;
@@ -533,6 +547,43 @@ const renderField = (field, index, props) => {
         )
       );
 
+    case "Email":
+      return (
+        <div
+          key={field.id || index}
+          id={`field-wrapper-${field.id}`}
+          className="space-y-2"
+        >
+          <label className="block text-gray-700 font-semibold text-sm">
+            {field.value || settings.label || "Email Address"}
+            <span className="text-red-500 ml-1">*</span>
+          </label>
+          <input
+            type="email"
+            className={`w-full px-4 py-3 rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 text-gray-800 ${
+              hasError
+                ? "border-red-400 bg-red-50 focus:ring-red-200 border-2"
+                : isFocused
+                  ? "border-blue-400 bg-blue-50 ring-2 ring-blue-200 border-2"
+                  : "border-gray-200 bg-gray-50 hover:bg-gray-100 border"
+            }`}
+            placeholder={settings.placeholder || "you@example.com"}
+            value={answers[field.id] || ""}
+            onFocus={() => setFocusedField(field.id)}
+            onBlur={() => setFocusedField(null)}
+            onChange={(e) => {
+              updateAnswer(field.id, e.target.value);
+              setValidationErrors((prev) => {
+                const n = { ...prev };
+                delete n[field.id];
+                return n;
+              });
+            }}
+          />
+          {hasError && <ErrorMessage message={validationErrors[field.id]} />}
+        </div>
+      );
+
     case "Short":
       return (
         <div
@@ -542,7 +593,7 @@ const renderField = (field, index, props) => {
         >
           <label className="block text-gray-700 font-semibold text-sm">
             {field.value || settings.label || "Text Input"}
-            <span className="text-red-500 ml-1">*</span>
+            {settings.required !== false && <span className="text-red-500 ml-1">*</span>}
           </label>
           <input
             type="text"
@@ -579,7 +630,7 @@ const renderField = (field, index, props) => {
         >
           <label className="block text-gray-700 font-semibold text-sm">
             {field.value || settings.label || "Paragraph"}
-            <span className="text-red-500 ml-1">*</span>
+            {settings.required !== false && <span className="text-red-500 ml-1">*</span>}
           </label>
           <textarea
             className={`w-full px-4 py-3 rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 text-gray-800 resize-y min-h-[120px] ${
@@ -619,7 +670,7 @@ const renderField = (field, index, props) => {
         >
           <label className="block text-gray-700 font-semibold text-sm">
             {field.value || settings.label || "Multiple Choice"}
-            <span className="text-red-500 ml-1">*</span>
+            {settings.required !== false && <span className="text-red-500 ml-1">*</span>}
           </label>
           <div className="space-y-2">
             {(field.options || []).map((option, i) => (
@@ -678,7 +729,7 @@ const renderField = (field, index, props) => {
         >
           <label className="block text-gray-700 font-semibold text-sm">
             {field.value || settings.label || "Multiple Answers"}
-            <span className="text-red-500 ml-1">*</span>
+            {settings.required !== false && <span className="text-red-500 ml-1">*</span>}
           </label>
           <div className="space-y-2">
             {(field.options || []).map((option, i) => {
@@ -743,7 +794,7 @@ const renderField = (field, index, props) => {
         >
           <label className="block text-gray-700 font-semibold text-sm">
             {field.question || settings.label || "Image Choice"}
-            <span className="text-red-500 ml-1">*</span>
+            {settings.required !== false && <span className="text-red-500 ml-1">*</span>}
           </label>
           <div
             className={`grid grid-cols-2 md:grid-cols-3 gap-4 ${hasError ? "ring-2 ring-red-300 rounded-xl p-1" : ""}`}

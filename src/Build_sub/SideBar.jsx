@@ -1,9 +1,10 @@
-import { FiType, FiAlignLeft, FiImage, FiFileText, FiEdit3, FiCheckSquare, FiCircle, FiGrid } from 'react-icons/fi';
+import { FiType, FiAlignLeft, FiImage, FiFileText, FiEdit3, FiCheckSquare, FiCircle, FiGrid, FiMail } from 'react-icons/fi';
 
 const fieldTypes = [
   { type: 'Heading', label: 'Heading', icon: FiType, color: 'text-blue-600 bg-blue-50' },
   { type: 'Paragraph', label: 'Paragraph', icon: FiAlignLeft, color: 'text-indigo-600 bg-indigo-50' },
   { type: 'Image', label: 'Image', icon: FiImage, color: 'text-pink-600 bg-pink-50' },
+  { type: 'Email', label: 'Email', icon: FiMail, color: 'text-cyan-600 bg-cyan-50' },
   { type: 'Short', label: 'Short Answer', icon: FiEdit3, color: 'text-emerald-600 bg-emerald-50' },
   { type: 'Long', label: 'Long Answer', icon: FiFileText, color: 'text-teal-600 bg-teal-50' },
   { type: 'MultipleAnswers', label: 'Checkbox', icon: FiCheckSquare, color: 'text-orange-600 bg-orange-50' },

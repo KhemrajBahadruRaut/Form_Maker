@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FiEdit2, FiTrash2, FiPlus, FiEye, FiBarChart2, FiCalendar, FiFileText, FiMessageSquare, FiLogOut } from 'react-icons/fi';
+import { FiEdit2, FiTrash2, FiPlus, FiEye, FiBarChart2, FiCalendar, FiFileText, FiMessageSquare, FiLogOut, FiLink, FiCopy } from 'react-icons/fi';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 
@@ -8,6 +8,7 @@ const Dashboard = () => {
   const [forms, setForms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [copiedLink, setCopiedLink] = useState(null);
   const navigate = useNavigate();
   const { logout } = useAuth();
 
@@ -160,6 +161,34 @@ const Dashboard = () => {
                       {form.description}
                     </p>
                   )}
+
+                  {/* Shareable Link */}
+                  <div className="flex items-center gap-2 mb-3 p-2 bg-gray-50 rounded-lg border border-gray-200">
+                    <FiLink size={14} className="text-gray-400 flex-shrink-0" />
+                    <a
+                      href={`/form/${form.form_number}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-blue-600 hover:underline truncate flex-1"
+                    >
+                      {`${window.location.origin}/form/${form.form_number}`}
+                    </a>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(`${window.location.origin}/form/${form.form_number}`);
+                        setCopiedLink(form.form_number);
+                        setTimeout(() => setCopiedLink(null), 2000);
+                      }}
+                      className="flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md transition-all duration-200 flex-shrink-0"
+                      style={{
+                        backgroundColor: copiedLink === form.form_number ? '#d1fae5' : '#f3f4f6',
+                        color: copiedLink === form.form_number ? '#059669' : '#6b7280',
+                      }}
+                    >
+                      <FiCopy size={12} />
+                      {copiedLink === form.form_number ? 'Copied!' : 'Copy'}
+                    </button>
+                  </div>
                   
                   {/* Actions */}
                   <div className="flex flex-wrap gap-2 mt-5 pt-4 border-t border-gray-100">

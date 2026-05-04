@@ -109,7 +109,7 @@ const MultipleAnswersField = ({ field, onUpdateField, onRemoveOption }) => {
 </button>
 
       {/* Customization Controls */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-700 mt-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm text-gray-700 mt-4">
         {/* Font Size */}
         <div>
           <label className="block font-medium mb-1">Font Size</label>
@@ -151,6 +151,17 @@ const MultipleAnswersField = ({ field, onUpdateField, onRemoveOption }) => {
             onChange={(e) => handleSettingChange('color', e.target.value)}
             className="w-full h-10 p-1 border rounded cursor-pointer"
           />
+        </div>
+
+        {/* Required Toggle */}
+        <div>
+          <label className="block font-medium mb-1">Required</label>
+          <div
+            onClick={() => handleSettingChange('required', !(field.settings?.required !== false))}
+            className={`w-11 h-6 rounded-full relative cursor-pointer transition-colors duration-200 ${field.settings?.required !== false ? 'bg-blue-500' : 'bg-gray-300'}`}
+          >
+            <div className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${field.settings?.required !== false ? 'translate-x-5' : 'translate-x-0'}`} />
+          </div>
         </div>
       </div>
     </div>

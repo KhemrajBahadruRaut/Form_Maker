@@ -7,6 +7,7 @@ import ImageField from '../field-types/ImageField';
 import MCQField from '../field-types/MCQField';
 import MultipleAnswersField from '../field-types/MultipleAnswersField';
 import ImageChoiceField from '../field-types/ImageChoiceField';
+import EmailField from '../field-types/EmailField';
 
 const FieldRenderer = ({ field, onUpdateField, onRemoveOption }) => {
   const commonProps = { field, onUpdateField, onRemoveOption };
@@ -21,6 +22,8 @@ const FieldRenderer = ({ field, onUpdateField, onRemoveOption }) => {
       return <LongField {...commonProps} />;
     case 'Short':
       return <ShortField {...commonProps} />;
+    case 'Email':
+      return <EmailField {...commonProps} />;
     case 'Image':
       return <ImageField {...commonProps} />;
     case 'MCQ':

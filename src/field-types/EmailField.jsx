@@ -1,6 +1,6 @@
 import React from 'react';
 
-const LongField = ({ field, onUpdateField }) => {
+const EmailField = ({ field, onUpdateField }) => {
   const fontSize = field.settings?.fontSize || 'text-base';
   const align = field.settings?.align || 'left';
   const color = field.settings?.color || '#000000';
@@ -16,28 +16,21 @@ const LongField = ({ field, onUpdateField }) => {
     }
   };
 
-  const handleSettingChange = (key, value) => {
+  const handleSettingChange = (key, newValue) => {
+    if (!onUpdateField) return;
     let updatedField;
-
     if (key === 'value') {
-      updatedField = { ...field, value };
+      updatedField = { ...field, value: newValue };
     } else {
       updatedField = {
         ...field,
         settings: {
           ...field.settings,
-          [key]: value,
+          [key]: newValue,
         },
       };
     }
-
     onUpdateField(field.id, updatedField);
-
-    const storedFields = JSON.parse(localStorage.getItem('formFields') || '[]');
-    const updatedFields = storedFields.map((f) =>
-      f.id === field.id ? updatedField : f
-    );
-    localStorage.setItem('formFields', JSON.stringify(updatedFields));
   };
 
   return (
@@ -45,24 +38,35 @@ const LongField = ({ field, onUpdateField }) => {
       {/* Question input */}
       <input
         type="text"
-        placeholder="Enter your question here"
+        placeholder="Enter your question (e.g. Your Email Address)"
         className={`w-full mb-2 p-2 border border-gray-300 rounded-md ${fontSize} ${resolveAlignment(align)}`}
         style={{ color }}
         value={field.value || ''}
         onChange={(e) => handleSettingChange('value', e.target.value)}
       />
 
-      {/* Answer textarea (disabled preview) */}
-      <textarea
-        placeholder="Answer here"
-        className={`w-full p-2 border border-gray-300 rounded-md ${fontSize} ${resolveAlignment(align)}`}
-        style={{ color }}
-        rows="4"
+      {/* Email input preview (disabled) */}
+      <input
+        type="email"
+        placeholder="email@example.com"
         disabled
+        className={`w-full p-2 border border-gray-300 rounded-md ${fontSize} ${resolveAlignment(align)} bg-gray-50`}
+        style={{ color }}
       />
 
+      {/* Always required badge */}
+      <div className="flex items-center gap-2 text-sm">
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-red-50 text-red-600 rounded-full font-medium text-xs">
+          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Always Required
+        </span>
+        <span className="text-gray-400 text-xs">This field is used to send submission confirmation emails</span>
+      </div>
+
       {/* Customization Controls */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm text-gray-700">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-700">
         {/* Font Size */}
         <div>
           <label className="block font-medium mb-1">Font Size</label>
@@ -105,20 +109,9 @@ const LongField = ({ field, onUpdateField }) => {
             className="w-full h-10 p-1 border rounded cursor-pointer"
           />
         </div>
-
-        {/* Required Toggle */}
-        <div>
-          <label className="block font-medium mb-1">Required</label>
-          <div
-            onClick={() => handleSettingChange('required', !(field.settings?.required !== false))}
-            className={`w-11 h-6 rounded-full relative cursor-pointer transition-colors duration-200 ${field.settings?.required !== false ? 'bg-blue-500' : 'bg-gray-300'}`}
-          >
-            <div className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${field.settings?.required !== false ? 'translate-x-5' : 'translate-x-0'}`} />
-          </div>
-        </div>
       </div>
     </div>
   );
 };
 
-export default LongField;
+export default EmailField;
